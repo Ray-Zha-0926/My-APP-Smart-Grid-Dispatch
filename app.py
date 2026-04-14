@@ -51,26 +51,23 @@ with st.sidebar:
     st.success("核心数据库连接正常")
     st.info("系统版本：V 3.2 \n\n底层数据：国家统计局\n\n智能体：Qwen-Turbo")
 
-# ================= 模拟加载数据 =================
+# ================= 加载真实 Excel 数据 =================
 @st.cache_data
-def load_dummy_data():
-    dates = pd.date_range(start='2018-01-01', end='2023-12-01', freq='MS')
-    provinces = ['四川省', '江苏省', '内蒙古自治区', '广东省', '山东省', '浙江省', '新疆维吾尔自治区']
-    data = []
-    for p in provinces:
-        trend_base = 300
-        for i, d in enumerate(dates):
-            trend_val = trend_base + i * 1.5 
-            month_factor = np.sin(d.month / 12 * 2 * np.pi)
-            seasonality_val = trend_val * (0.15 * month_factor) 
-            
-            consumption = trend_val + seasonality_val + np.random.normal(0, 5)
-            generation = trend_val + 10 + seasonality_val + np.random.normal(0, 5)
-            # Shortage = 用电 - 发电 (正数代表缺口/风险，负数代表冗余)
-            data.append([d, p, consumption, generation, consumption - generation])
-    return pd.DataFrame(data, columns=['Date', 'Province', 'Consumption', 'Generation', 'Shortage'])
+def load_real_data():
+    # 告诉系统读取你刚上传的 xlsx 文件
+    df = pd.read_excel('power_data.xlsx')
+    
+    # 确保 Date 列是正确的时间格式
+    df['Date'] = pd.to_datetime(df['Date'])
+    
+    # 为了保险起见，强制转换为浮点数字型（处理任何残余的文本型数字）
+    df['Consumption'] = pd.to_numeric(df['Consumption'], errors='coerce')
+    df['Generation'] = pd.to_numeric(df['Generation'], errors='coerce')
+    df['Shortage'] = pd.to_numeric(df['Shortage'], errors='coerce')
+    
+    return df
 
-df = load_dummy_data()
+df = load_real_data()
 
 # ================= 页面 1：源网荷态势感知大屏 =================
 if page == "1. 源网荷实时态势感知":
