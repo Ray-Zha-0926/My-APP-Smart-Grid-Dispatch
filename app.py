@@ -14,6 +14,7 @@ custom_css = """
     /* #MainMenu {visibility: hidden;} */
     footer {visibility: hidden;}
     /* header {visibility: hidden;} */
+    
     .stApp { background-color: #F8FAFC; }
     html, body, [class*="css"], p { color: #334155 !important; font-family: 'Inter', sans-serif; }
     [data-testid="stSidebar"] { background-color: #FFFFFF; border-right: 1px solid #E2E8F0; }
