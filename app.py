@@ -52,7 +52,7 @@ with st.sidebar:
     st.success("核心数据库连接正常")
     st.info("系统版本：V 3.2 \n\n底层数据：国家统计局\n\n智能体：Qwen-Turbo")
 
-# ================= 加载真实 Excel 数据 =================
+# ================= 加载 Excel 数据 =================
 @st.cache_data
 def load_real_data():
     # 告诉系统读取你刚上传的 xlsx 文件
@@ -119,7 +119,7 @@ elif page == "2. 电力数据时序分解演进":
     sel_prov_2 = st.selectbox("🎯 定位分析省份：", df['Province'].unique(), key="prov_2")
     prov_df_2 = df[df['Province'] == sel_prov_2].sort_values('Date').copy()
 
-    st.markdown("### 📊 发电量同比/环比及绝对量矩阵")
+    st.markdown("### 📊 发电量同比/环比及绝对量图")
     prov_df_2['Gen_MoM'] = prov_df_2['Generation'].pct_change(periods=1) * 100
     prov_df_2['Gen_YoY'] = prov_df_2['Generation'].pct_change(periods=12) * 100
 
