@@ -242,7 +242,7 @@ elif page == "4. 智能体调度决策引擎":
 
     st.sidebar.markdown("---")
     st.sidebar.markdown("<h4 style='color:#1E293B;'>⚙️ 系统认证</h4>", unsafe_allow_html=True)
-    api_key = st.sidebar.text_input("请输入 LLM API Token", type="password")
+    api_key = st.sidebar.text_input("请输入 千问大模型 API Token", type="password")
 
     if api_key:
         st.sidebar.success("凭证已加载", icon="✅")
