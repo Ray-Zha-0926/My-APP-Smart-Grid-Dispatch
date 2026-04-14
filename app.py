@@ -44,8 +44,8 @@ with st.sidebar:
     st.markdown("<p style='text-align: center; color: #64748B; font-size: 13px; margin-top: -15px;'>Power System Smart Dispatch</p>", unsafe_allow_html=True)
     st.markdown("---")
     page = st.radio("模块导航",
-                    ["1. 源荷态势感知大屏", "2. 电力数据时序分解演进", "3. 供需缺口 3D 时空雷达",
-                     "4. AI 大模型调度决策生成"]
+                    ["1. 源网荷实时态势感知", "2. 电力数据时序分解演进", "3. 省级供需缺口三维风险曲面",
+                     "4. 智能体调度决策引擎"]
                     )
     st.markdown("---")
     st.success("核心数据库连接正常")
@@ -75,32 +75,32 @@ def load_dummy_data():
 df = load_dummy_data()
 
 # ================= 页面 1：源荷大屏 =================
-if page == "1. 源荷态势感知大屏":
+if page == "1.  源网荷实时态势感知":
     st.markdown("<h1>📊 全国省级电网源荷态势感知</h1>", unsafe_allow_html=True)
     st.markdown("<p style='color:#64748B; font-size: 16px;'>基于多源传感器及统计局宏观数据，实时监控各省级行政区全社会用电负荷与发电量极值。</p>", unsafe_allow_html=True)
     st.markdown("---")
 
     col1, col2, col3, col4 = st.columns(4)
     with col1:
-        st.markdown(f'<div class="kpi-card"><div class="kpi-title">监控省份节点</div><div class="kpi-value">{len(df["Province"].unique())} 个</div><div class="kpi-delta" style="color:#64748B;">覆盖核心电网区域</div></div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="kpi-card"><div class="kpi-title">省级电网监控单元</div><div class="kpi-value">{len(df["Province"].unique())} 个</div><div class="kpi-delta" style="color:#64748B;">覆盖核心电网区域</div></div>', unsafe_allow_html=True)
     with col2:
-        st.markdown(f'<div class="kpi-card" style="border-top-color: #8B5CF6;"><div class="kpi-title">数据时序跨度</div><div class="kpi-value">{len(df["Date"].unique())} 期</div><div class="kpi-delta" style="color:#64748B;">月度高频采样</div></div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="kpi-card" style="border-top-color: #8B5CF6;"><div class="kpi-title">数据采样时间跨度</div><div class="kpi-value">{len(df["Date"].unique())} 期</div><div class="kpi-delta" style="color:#64748B;">月度高频采样</div></div>', unsafe_allow_html=True)
     with col3:
         max_shortage = df['Shortage'].max()
-        st.markdown(f'<div class="kpi-card" style="border-top-color: #EF4444;"><div class="kpi-title">历史最大缺口峰值</div><div class="kpi-value">{max_shortage:.1f} <span style="font-size:16px; color:#64748B;">GWh</span></div><div class="kpi-delta delta-up">⚠️ 高压运行警告</div></div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="kpi-card" style="border-top-color: #EF4444;"><div class="kpi-title">历史最大供需缺口（绝对值）</div><div class="kpi-value">{max_shortage:.1f} <span style="font-size:16px; color:#64748B;">GWh</span></div><div class="kpi-delta delta-up">⚠️ 高压运行警告</div></div>', unsafe_allow_html=True)
     with col4:
         max_gen = df['Generation'].max()
-        st.markdown(f'<div class="kpi-card" style="border-top-color: #10B981;"><div class="kpi-title">单月最大发电释放</div><div class="kpi-value">{max_gen:.1f} <span style="font-size:16px; color:#64748B;">GWh</span></div><div class="kpi-delta delta-down">🟢 产能充沛</div></div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="kpi-card" style="border-top-color: #10B981;"><div class="kpi-title">单月最大发电量（月度峰值）</div><div class="kpi-value">{max_gen:.1f} <span style="font-size:16px; color:#64748B;">GWh</span></div><div class="kpi-delta delta-down">🟢 产能充沛</div></div>', unsafe_allow_html=True)
 
     st.write("")
     col_left, col_right = st.columns([1.2, 2])
     with col_left:
-        st.markdown("### 📋 宏观时序矩阵")
+        st.markdown("### 📋 省级源荷时序快照")
         formatted_df = df.head(20).copy()
         formatted_df['Date'] = formatted_df['Date'].dt.strftime('%Y-%m')
         st.dataframe(formatted_df.style.format({"Consumption": "{:.1f}", "Generation": "{:.1f}", "Shortage": "{:.1f}"}), hide_index=True, use_container_width=True, height=350)
     with col_right:
-        st.markdown("### 📈 节点源荷动态追踪")
+        st.markdown("### 📈 选定省份源荷曲线对比")
         sel_prov = st.selectbox("选择目标省份：", df['Province'].unique(), label_visibility="collapsed")
         prov_df = df[df['Province'] == sel_prov]
 
@@ -123,7 +123,7 @@ elif page == "2. 电力数据时序分解演进":
     prov_df_2 = df[df['Province'] == sel_prov_2].sort_values('Date').copy()
 
     # --- 图 1：原有的同环比动能图 ---
-    st.markdown("### 📊 绝对产出与同环比动能矩阵")
+    st.markdown("### 📊 发电量同比/环比及绝对量")
     prov_df_2['Gen_MoM'] = prov_df_2['Generation'].pct_change(periods=1) * 100
     prov_df_2['Gen_YoY'] = prov_df_2['Generation'].pct_change(periods=12) * 100
 
@@ -135,14 +135,14 @@ elif page == "2. 电力数据时序分解演进":
     fig2.update_layout(template="plotly_white", paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", font=dict(color="#334155"),
         hovermode="x unified", legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1), height=450)
     fig2.update_xaxes(gridcolor='#E2E8F0')
-    fig2.update_yaxes(title_text="绝对产出 (GWh)", secondary_y=False, showgrid=False)
+    fig2.update_yaxes(title_text="月度发电总量 (GWh)", secondary_y=False, showgrid=False)
     fig2.update_yaxes(title_text="相对增幅 (%)", secondary_y=True, showgrid=True, gridcolor='#E2E8F0')
     st.plotly_chart(fig2, use_container_width=True)
 
     st.markdown("---")
 
     # --- 图 2：优化后的乘法分解 (Multiplicative Decomposition) ---
-    st.markdown("### 🔬 动态产能信号深度分解 (Trend / Dynamic Cycle / Noise)")
+    st.markdown("### 🔬 时序乘法分解：趋势、季节、残差")
     st.markdown("<p style='color:#64748B; font-size: 14px;'>注：长周期趋势扩展为24个月平滑，完美过滤年际干扰；季节性振幅采用动态比率(Ratio)计算，客观反映供需压力的同步放大。</p>", unsafe_allow_html=True)
     
     ts_series = prov_df_2.set_index('Date')['Generation']
@@ -178,13 +178,13 @@ elif page == "2. 电力数据时序分解演进":
     st.plotly_chart(fig_decomp, use_container_width=True)
 
 # ================= 页面 3：3D 时空图 =================
-elif page == "3. 供需缺口 3D 时空雷达":
-    st.markdown("<h1>🌐 区域互济缺口时空演化雷达</h1>", unsafe_allow_html=True)
+elif page == "3. 省级供需缺口三维风险曲面":
+    st.markdown("<h1>🌐 省级供需缺口时空演化热力曲面</h1>", unsafe_allow_html=True)
     st.markdown("<p style='color:#64748B; font-size: 16px;'>【色彩空间修正】白色基准线严格锚定“供需平衡点(缺口=0)”。蓝色区域表示电力冗余，红色高地代表电网承压濒临极限。</p>", unsafe_allow_html=True)
     st.markdown("---")
 
     view_mode = st.radio("👀 请选择观测视角 (View Mode)：", 
-                         ["🧊 3D 宏观拓扑雷达 (看全局演变)", "🗺️ 2D 平面热力截面 (看精准数值)"], 
+                         ["🧊 3D 宏观时空演变地形图", "🗺️ 2D 时空切片热力图"], 
                          horizontal=True)
     
     pivot_df = df.pivot(index='Date', columns='Province', values='Shortage')
@@ -210,7 +210,7 @@ elif page == "3. 供需缺口 3D 时空雷达":
             ), height=750, margin=dict(l=0, r=0, b=0, t=0))
         st.plotly_chart(fig, use_container_width=True)
     else:
-        st.info("💡 【2D 截面指引】将鼠标悬停在色块上即可查看特定省份在该月份的精确缺口数值。白色区域代表供需平衡。")
+        st.info("💡 【2D 切片指引】将鼠标悬停在色块上即可查看特定省份在该月份的精确缺口数值。")
         fig_2d = go.Figure(data=go.Heatmap(
             z=pivot_df.values, x=pivot_df.columns, y=pivot_df.index.strftime('%Y-%m'),
             colorscale='RdBu_r', 
@@ -224,10 +224,10 @@ elif page == "3. 供需缺口 3D 时空雷达":
         st.plotly_chart(fig_2d, use_container_width=True)
 
 # ================= 页面 4：AI 模块 =================
-elif page == "4. AI 大模型调度决策生成":
+elif page == "4. 智能体调度决策引擎":
     col_title, col_btn = st.columns([4, 1])
     with col_title:
-        st.markdown("<h1>🤖 智算中枢: 大模型辅助决策 (Qwen Agent)</h1>", unsafe_allow_html=True)
+        st.markdown("<h1>🤖 智能体: 大模型辅助决策 (Qwen‑Turbo)</h1>", unsafe_allow_html=True)
     with col_btn:
         st.write("")
         if st.button("🔄 重置会话上下文"):
@@ -258,14 +258,14 @@ elif page == "4. AI 大模型调度决策生成":
     - 发生时间节点：{worst_date}
     - 供需缺口极值：高达 {worst_shortage:.2f} GWh（存在拉闸限电风险）
 
-    请牢记上述异常数据。回答请结合真实的电力调度（如现货市场、DR、VPP）知识，总字数控制在1000字以内。"""
+    请牢记上述异常数据。回答请结合严谨的电网运行规范和真实的电力调度（如现货市场、DR、VPP）知识，总字数控制在1000字以内。"""
 
     if "chat_history" not in st.session_state:
         st.session_state.chat_history = []
 
-    st.error(f"🚨 **系统全局风险扫描报告**：底层扫描引擎报告，**{worst_prov}** 在 **{worst_date}** 突破历史最大电力供需剪刀差，缺口峰值达 **{worst_shortage:.2f} GWh**！")
+    st.error(f"🚨 **实时风险扫描简报**：底层扫描引擎报告，**{worst_prov}** 在 **{worst_date}** 突破历史最大电力供需剪刀差，缺口峰值达 **{worst_shortage:.2f} GWh**！")
 
-    recommended_prompt = f"针对系统捕获的 {worst_prov} 在 {worst_date} 出现的 {worst_shortage:.2f} GWh 严重电力缺口。作为智算中枢，请立刻生成一份包含3条核心对策的紧急保供优化指令书。"
+    recommended_prompt = f"针对系统捕获的 {worst_prov} 在 {worst_date} 出现的 {worst_shortage:.2f} GWh 严重电力缺口。作为智算中枢，请立刻生成一份包含宅少3条核心对策的紧急保供调度指令单。"
 
     if st.button("⚡ 自动执行异常分析指令"):
         st.session_state.chat_history.append({"role": "user", "content": recommended_prompt})
@@ -276,7 +276,7 @@ elif page == "4. AI 大模型调度决策生成":
         if msg["role"] == "user":
             st.info(f"🧑‍💻 **人类分析师**：{msg['content']}")
         else:
-            st.success(f"🧠 **调度智算中枢**：\n\n{msg['content']}")
+            st.success(f"🧠 **调度决策智能体**：\n\n{msg['content']}")
 
     st.markdown("---")
 
@@ -298,7 +298,7 @@ elif page == "4. AI 大模型调度决策生成":
             st.session_state.chat_history.pop()
         else:
             from openai import OpenAI
-            with st.spinner("🧠 智算中枢正在融合全局感知数据进行推演，请稍候..."):
+            with st.spinner("🧠 智能体正在融合全局感知数据进行推演，请稍候..."):
                 try:
                     client = OpenAI(api_key=api_key, base_url="https://dashscope.aliyuncs.com/compatible-mode/v1")
                     messages_for_api = [{"role": "system", "content": SYSTEM_PROMPT}] + st.session_state.chat_history
