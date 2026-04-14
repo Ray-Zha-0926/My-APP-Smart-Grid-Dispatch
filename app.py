@@ -162,7 +162,7 @@ elif page == "2. 电力数据时序分解演进":
 
     fig_decomp.update_layout(template="plotly_white", paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", 
                              font=dict(color="#334155"), height=850, showlegend=False, hovermode="x unified")
-    fig_decomp.update_xaxes(gridcolor='#E2E8F0', title="时间 (月度)")
+    fig_decomp.update_xaxes(gridcolor='#E2E8F0')
     fig_decomp.update_yaxes(gridcolor='#E2E8F0')
     st.plotly_chart(fig_decomp, use_container_width=True)
 
