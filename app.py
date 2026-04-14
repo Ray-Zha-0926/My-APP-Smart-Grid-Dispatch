@@ -129,7 +129,7 @@ elif page == "2. 电力数据时序分解演进":
     # 绝对值用蓝色(中性基座)，同比用橙色(预警)，环比用绿色(波动)
     fig2.add_trace(go.Bar(x=prov_df_2['Date'], y=prov_df_2['Generation'], name="月度发电总量 (GWh)", marker_color="#3B82F6", opacity=0.8), secondary_y=False)
     fig2.add_trace(go.Scatter(x=prov_df_2['Date'], y=prov_df_2['Gen_YoY'], name="同比增速 YoY (%)", mode="lines+markers", line=dict(color="#F59E0B", width=3), marker=dict(symbol="diamond", size=6)), secondary_y=True)
-    fig2.add_trace(go.Scatter(x=prov_df_2['Date'], y=prov_df_2['Gen_MoM'], name="环比增速 MoM (%)", mode="lines+markers", line=dict(color="#10B981", width=3, dash="dot"), marker=dict(symbol="circle", size=5)), secondary_y=True)
+    fig2.add_trace(go.Scatter(x=prov_df_2['Date'], y=prov_df_2['Gen_MoM'], name="环比增速 MoM (%)", mode="lines+markers", line=dict(color="#EF4444", width=3, dash="dot"), marker=dict(symbol="circle", size=5)), secondary_y=True)
 
     fig2.update_layout(template="plotly_white", paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", font=dict(color="#334155"),
         hovermode="x unified", legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1), height=450)
