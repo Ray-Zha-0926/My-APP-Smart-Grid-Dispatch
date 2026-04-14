@@ -49,7 +49,7 @@ with st.sidebar:
                     )
     st.markdown("---")
     st.success("核心数据库连接正常")
-    st.info("系统版本：V 3.1 (Algorithms Upgraded)\n\n底层数据：国家统计局\n\n智能体：Qwen-Turbo")
+    st.info("系统版本：V 3.2 (Industry Standard)\n\n底层数据：国家统计局\n\n智能体：Qwen-Turbo")
 
 # ================= 模拟加载数据 =================
 @st.cache_data
@@ -57,13 +57,10 @@ def load_dummy_data():
     dates = pd.date_range(start='2018-01-01', end='2023-12-01', freq='MS')
     provinces = ['四川省', '江苏省', '内蒙古自治区', '广东省', '山东省', '浙江省', '新疆维吾尔自治区']
     data = []
-    # 模拟“动态增长”的基数
     for p in provinces:
         trend_base = 300
         for i, d in enumerate(dates):
-            # 基数随时间增长 (模拟宏观经济增长)
             trend_val = trend_base + i * 1.5 
-            # 季节性波动因基数增长而放大 (乘法效应)
             month_factor = np.sin(d.month / 12 * 2 * np.pi)
             seasonality_val = trend_val * (0.15 * month_factor) 
             
@@ -75,7 +72,7 @@ def load_dummy_data():
 df = load_dummy_data()
 
 # ================= 页面 1：源荷大屏 =================
-if page == "1.  源网荷实时态势感知":
+if page == "1. 源网荷实时态势感知":
     st.markdown("<h1>📊 全国省级电网源荷态势感知</h1>", unsafe_allow_html=True)
     st.markdown("<p style='color:#64748B; font-size: 16px;'>基于多源传感器及统计局宏观数据，实时监控各省级行政区全社会用电负荷与发电量极值。</p>", unsafe_allow_html=True)
     st.markdown("---")
@@ -87,10 +84,10 @@ if page == "1.  源网荷实时态势感知":
         st.markdown(f'<div class="kpi-card" style="border-top-color: #8B5CF6;"><div class="kpi-title">数据采样时间跨度</div><div class="kpi-value">{len(df["Date"].unique())} 期</div><div class="kpi-delta" style="color:#64748B;">月度高频采样</div></div>', unsafe_allow_html=True)
     with col3:
         max_shortage = df['Shortage'].max()
-        st.markdown(f'<div class="kpi-card" style="border-top-color: #EF4444;"><div class="kpi-title">历史最大供需缺口（绝对值）</div><div class="kpi-value">{max_shortage:.1f} <span style="font-size:16px; color:#64748B;">GWh</span></div><div class="kpi-delta delta-up">⚠️ 高压运行警告</div></div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="kpi-card" style="border-top-color: #EF4444;"><div class="kpi-title">历史最大供需缺口 (绝对值)</div><div class="kpi-value">{max_shortage:.1f} <span style="font-size:16px; color:#64748B;">GWh</span></div><div class="kpi-delta delta-up">⚠️ 高压运行警告</div></div>', unsafe_allow_html=True)
     with col4:
         max_gen = df['Generation'].max()
-        st.markdown(f'<div class="kpi-card" style="border-top-color: #10B981;"><div class="kpi-title">单月最大发电量（月度峰值）</div><div class="kpi-value">{max_gen:.1f} <span style="font-size:16px; color:#64748B;">GWh</span></div><div class="kpi-delta delta-down">🟢 产能充沛</div></div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="kpi-card" style="border-top-color: #10B981;"><div class="kpi-title">单月最大发电量 (月度峰值)</div><div class="kpi-value">{max_gen:.1f} <span style="font-size:16px; color:#64748B;">GWh</span></div><div class="kpi-delta delta-down">🟢 产能充沛</div></div>', unsafe_allow_html=True)
 
     st.write("")
     col_left, col_right = st.columns([1.2, 2])
@@ -98,19 +95,23 @@ if page == "1.  源网荷实时态势感知":
         st.markdown("### 📋 省级源荷时序快照")
         formatted_df = df.head(20).copy()
         formatted_df['Date'] = formatted_df['Date'].dt.strftime('%Y-%m')
-        st.dataframe(formatted_df.style.format({"Consumption": "{:.1f}", "Generation": "{:.1f}", "Shortage": "{:.1f}"}), hide_index=True, use_container_width=True, height=350)
+        # 强制增加表头单位标注
+        formatted_df.rename(columns={'Consumption': '用电负荷 (GWh)', 'Generation': '发电量 (GWh)', 'Shortage': '供需缺口 (GWh)', 'Date': '时间 (YYYY-MM)', 'Province': '省级行政区'}, inplace=True)
+        st.dataframe(formatted_df.style.format({'用电负荷 (GWh)': "{:.1f}", '发电量 (GWh)': "{:.1f}", '供需缺口 (GWh)': "{:.1f}"}), hide_index=True, use_container_width=True, height=350)
     with col_right:
         st.markdown("### 📈 选定省份源荷曲线对比")
         sel_prov = st.selectbox("选择目标省份：", df['Province'].unique(), label_visibility="collapsed")
         prov_df = df[df['Province'] == sel_prov]
 
         fig_line = go.Figure()
-        fig_line.add_trace(go.Scatter(x=prov_df['Date'], y=prov_df['Consumption'], mode='lines', name='用电负荷', line=dict(color='#EF4444', width=3)))
-        fig_line.add_trace(go.Scatter(x=prov_df['Date'], y=prov_df['Generation'], mode='lines', name='发电量', line=dict(color='#10B981', width=3)))
+        # 颜色语义对齐：发电量(蓝/中性)，用电负荷(深灰/背景参考)
+        fig_line.add_trace(go.Scatter(x=prov_df['Date'], y=prov_df['Consumption'], mode='lines', name='用电负荷 (GWh)', line=dict(color='#475569', width=2, dash='dot'), hovertemplate="时间: %{x|%Y-%m}<br>用电负荷: %{y:.1f} GWh<extra></extra>"))
+        fig_line.add_trace(go.Scatter(x=prov_df['Date'], y=prov_df['Generation'], mode='lines', name='发电量 (GWh)', line=dict(color='#3B82F6', width=3), hovertemplate="时间: %{x|%Y-%m}<br>发电总量: %{y:.1f} GWh<extra></extra>"))
+        
         fig_line.update_layout(template="plotly_white", plot_bgcolor="rgba(0,0,0,0)", paper_bgcolor="rgba(0,0,0,0)", 
             font=dict(color="#334155"), hovermode="x unified", height=350, margin=dict(l=0, r=0, t=30, b=0),
             legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
-            xaxis=dict(gridcolor='#E2E8F0'), yaxis=dict(gridcolor='#E2E8F0'))
+            xaxis=dict(title="时间 (月度)", gridcolor='#E2E8F0', tickformat="%Y-%m"), yaxis=dict(title="电量指标 (GWh)", gridcolor='#E2E8F0'))
         st.plotly_chart(fig_line, use_container_width=True)
 
 # ================= 页面 2：电力数据时序分解演进 =================
@@ -122,65 +123,54 @@ elif page == "2. 电力数据时序分解演进":
     sel_prov_2 = st.selectbox("🎯 定位分析省份：", df['Province'].unique(), key="prov_2")
     prov_df_2 = df[df['Province'] == sel_prov_2].sort_values('Date').copy()
 
-    # --- 图 1：原有的同环比动能图 ---
     st.markdown("### 📊 发电量同比/环比及绝对量")
     prov_df_2['Gen_MoM'] = prov_df_2['Generation'].pct_change(periods=1) * 100
     prov_df_2['Gen_YoY'] = prov_df_2['Generation'].pct_change(periods=12) * 100
 
     fig2 = make_subplots(specs=[[{"secondary_y": True}]])
-    fig2.add_trace(go.Bar(x=prov_df_2['Date'], y=prov_df_2['Generation'], name="月度发电总量 (GWh)", marker_color="#3B82F6", opacity=0.8), secondary_y=False)
-    fig2.add_trace(go.Scatter(x=prov_df_2['Date'], y=prov_df_2['Gen_YoY'], name="同比增速 YoY (%)", mode="lines+markers", line=dict(color="#F59E0B", width=3), marker=dict(symbol="diamond", size=6)), secondary_y=True)
-    fig2.add_trace(go.Scatter(x=prov_df_2['Date'], y=prov_df_2['Gen_MoM'], name="环比增速 MoM (%)", mode="lines+markers", line=dict(color="#10B981", width=3, dash="dot"), marker=dict(symbol="circle", size=5)), secondary_y=True)
+    fig2.add_trace(go.Bar(x=prov_df_2['Date'], y=prov_df_2['Generation'], name="月度发电总量 (GWh)", marker_color="#3B82F6", opacity=0.8, hovertemplate="时间: %{x|%Y-%m}<br>绝对产量: %{y:.1f} GWh<extra></extra>"), secondary_y=False)
+    fig2.add_trace(go.Scatter(x=prov_df_2['Date'], y=prov_df_2['Gen_YoY'], name="同比增速 YoY (%)", mode="lines+markers", line=dict(color="#F59E0B", width=3), marker=dict(symbol="diamond", size=6), hovertemplate="时间: %{x|%Y-%m}<br>同比增速: %{y:.2f}%<extra></extra>"), secondary_y=True)
+    fig2.add_trace(go.Scatter(x=prov_df_2['Date'], y=prov_df_2['Gen_MoM'], name="环比增速 MoM (%)", mode="lines+markers", line=dict(color="#10B981", width=3, dash="dot"), marker=dict(symbol="circle", size=5), hovertemplate="时间: %{x|%Y-%m}<br>环比增速: %{y:.2f}%<extra></extra>"), secondary_y=True)
 
     fig2.update_layout(template="plotly_white", paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", font=dict(color="#334155"),
         hovermode="x unified", legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1), height=450)
-    fig2.update_xaxes(gridcolor='#E2E8F0')
+    fig2.update_xaxes(title_text="时间 (月度)", gridcolor='#E2E8F0', tickformat="%Y-%m")
     fig2.update_yaxes(title_text="月度发电总量 (GWh)", secondary_y=False, showgrid=False)
     fig2.update_yaxes(title_text="相对增幅 (%)", secondary_y=True, showgrid=True, gridcolor='#E2E8F0')
     st.plotly_chart(fig2, use_container_width=True)
 
     st.markdown("---")
 
-    # --- 图 2：优化后的乘法分解 (Multiplicative Decomposition) ---
     st.markdown("### 🔬 时序乘法分解：趋势、季节、残差")
     st.markdown("<p style='color:#64748B; font-size: 14px;'>注：长周期趋势扩展为24个月平滑，完美过滤年际干扰；季节性振幅采用动态比率(Ratio)计算，客观反映供需压力的同步放大。</p>", unsafe_allow_html=True)
     
     ts_series = prov_df_2.set_index('Date')['Generation']
-    
-    # 1. 长周期宏观趋势 (扩大到 24 个月滚动平均，体现跨年周期)
     trend = ts_series.rolling(window=24, center=True, min_periods=6).mean()
-    
-    # 2. 动态季节性波动 (乘法模型)
-    # 提取真实值相对于趋势的比率 (例如夏天用电是平均值的 1.2 倍)
     ratio = ts_series / trend
-    # 按照每年的1-12月，求出每年固定的季节系数 (Annual Seasonality Factor)
     seasonal_index = ratio.groupby(ratio.index.month).transform('mean')
-    # 将系数还原成随基数扩大的绝对波动值
     seasonality = trend * (seasonal_index - 1)
-    
-    # 3. 突发随机噪声 (剔除趋势和规律性季节波动后，剩下的异常突变)
     noise = ts_series - trend - seasonality
 
     fig_decomp = make_subplots(rows=4, cols=1, shared_xaxes=True, 
-                               subplot_titles=("1. 原始动态增长信号 (Raw Expanding Signal)", "2. 跨年度长周期宏观趋势 (24-Month Macro Trend)", 
-                                               "3. 振幅扩大型季节波动 (Dynamic Seasonality Cycle)", "4. 突发随机噪声极值点 (Random Residuals)"),
+                               subplot_titles=("1. 原始动态增长信号 (GWh)", "2. 跨年度长周期宏观趋势 (GWh)", 
+                                               "3. 振幅扩大型季节波动 (GWh)", "4. 突发随机噪声极值点 (GWh)"),
                                vertical_spacing=0.08)
 
-    fig_decomp.add_trace(go.Scatter(x=ts_series.index, y=ts_series, line=dict(color="#3B82F6", width=2)), row=1, col=1)
-    fig_decomp.add_trace(go.Scatter(x=ts_series.index, y=trend, line=dict(color="#EF4444", width=3)), row=2, col=1)
-    fig_decomp.add_trace(go.Scatter(x=ts_series.index, y=seasonality, line=dict(color="#10B981", width=2), fill='tozeroy'), row=3, col=1)
-    fig_decomp.add_trace(go.Scatter(x=ts_series.index, y=noise, mode='markers+lines', line=dict(color="#CBD5E1", width=1), marker=dict(color="#475569", size=6, symbol="cross")), row=4, col=1)
+    fig_decomp.add_trace(go.Scatter(x=ts_series.index, y=ts_series, line=dict(color="#3B82F6", width=2), hovertemplate="%{y:.1f} GWh<extra>原始信号</extra>"), row=1, col=1)
+    fig_decomp.add_trace(go.Scatter(x=ts_series.index, y=trend, line=dict(color="#EF4444", width=3), hovertemplate="%{y:.1f} GWh<extra>宏观趋势</extra>"), row=2, col=1)
+    fig_decomp.add_trace(go.Scatter(x=ts_series.index, y=seasonality, line=dict(color="#10B981", width=2), fill='tozeroy', hovertemplate="%{y:.1f} GWh<extra>季节波动</extra>"), row=3, col=1)
+    fig_decomp.add_trace(go.Scatter(x=ts_series.index, y=noise, mode='markers+lines', line=dict(color="#CBD5E1", width=1), marker=dict(color="#475569", size=6, symbol="cross"), hovertemplate="%{y:.1f} GWh<extra>残差/噪声</extra>"), row=4, col=1)
 
     fig_decomp.update_layout(template="plotly_white", paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", 
                              font=dict(color="#334155"), height=850, showlegend=False, hovermode="x unified")
-    fig_decomp.update_xaxes(gridcolor='#E2E8F0')
+    fig_decomp.update_xaxes(title_text="时间 (月度)", gridcolor='#E2E8F0', tickformat="%Y-%m", row=4, col=1)
     fig_decomp.update_yaxes(gridcolor='#E2E8F0')
     st.plotly_chart(fig_decomp, use_container_width=True)
 
 # ================= 页面 3：3D 时空图 =================
 elif page == "3. 省级供需缺口三维风险曲面":
     st.markdown("<h1>🌐 省级供需缺口时空演化热力曲面</h1>", unsafe_allow_html=True)
-    st.markdown("<p style='color:#64748B; font-size: 16px;'>【色彩空间修正】白色基准线严格锚定“供需平衡点(缺口=0)”。蓝色区域表示电力冗余，红色高地代表电网承压濒临极限。</p>", unsafe_allow_html=True)
+    st.markdown("<p style='color:#64748B; font-size: 16px;'>【色彩语义标准】红色代表“缺口/风险”，绿色代表“冗余/安全”，蓝色代表“中性/发电量”。</p>", unsafe_allow_html=True)
     st.markdown("---")
 
     view_mode = st.radio("👀 请选择观测视角 (View Mode)：", 
@@ -189,20 +179,23 @@ elif page == "3. 省级供需缺口三维风险曲面":
     
     pivot_df = df.pivot(index='Date', columns='Province', values='Shortage')
 
-    # 🔥 核心修正：计算数据矩阵绝对值的最大值，强制设置色轴对称，确保 0 点永远是纯白色
     max_val = pivot_df.max().max()
     min_val = pivot_df.min().min()
     abs_max = max(abs(max_val), abs(min_val))
 
+    # 深度定制 Hover 模板，防呆提示极度清晰
+    hover_template = "时间 (月度): %{y}<br>省级行政区: %{x}<br>供需缺口: <b>%{z:.1f} GWh</b><extra>📌 负值: 电力冗余<br>📌 正值: 缺口风险</extra>"
+
     if "3D" in view_mode:
-        st.info("💡 【3D 交互指引】鼠标左键旋转，滚轮缩放，右键平移。")
+        st.info("💡 【3D 交互指引】鼠标左键旋转，滚轮缩放。红色高地代表缺电风险，蓝色低谷代表电力冗余。")
         fig = go.Figure(data=[go.Surface(z=pivot_df.values, x=pivot_df.columns, y=pivot_df.index.strftime('%Y-%m'),
-                                         colorscale='RdBu_r',
-                                         cmin=-abs_max, cmax=abs_max, # 强制 0 对齐纯白
+                                         colorscale='RdBu_r', cmin=-abs_max, cmax=abs_max,
+                                         hovertemplate=hover_template,
+                                         colorbar=dict(title="缺口指数 (GWh)"),
                                          contours={"z": {"show": True, "start": 0, "end": abs_max, "size": 5, "color": "black"}})])
         fig.update_layout(template="plotly_white", paper_bgcolor="rgba(0,0,0,0)", font=dict(color="#0F172A"),
             scene=dict(
-                xaxis_title='空间: 行政区', yaxis_title='时间: 月度', zaxis_title='风险: 缺口指数',
+                xaxis_title='空间: 行政区', yaxis_title='时间: 月度 (YYYY-MM)', zaxis_title='风险: 缺口极值 (GWh)',
                 xaxis=dict(gridcolor="#CBD5E1", backgroundcolor="#F8FAFC", showbackground=True),
                 yaxis=dict(gridcolor="#CBD5E1", backgroundcolor="#F8FAFC", showbackground=True),
                 zaxis=dict(gridcolor="#CBD5E1", backgroundcolor="#F8FAFC", showbackground=True),
@@ -210,16 +203,15 @@ elif page == "3. 省级供需缺口三维风险曲面":
             ), height=750, margin=dict(l=0, r=0, b=0, t=0))
         st.plotly_chart(fig, use_container_width=True)
     else:
-        st.info("💡 【2D 切片指引】将鼠标悬停在色块上即可查看特定省份在该月份的精确缺口数值。")
+        st.info("💡 【2D 切片指引】将鼠标悬停在色块上即可查看特定省份在该月份的精确缺口数值 (GWh)。")
         fig_2d = go.Figure(data=go.Heatmap(
             z=pivot_df.values, x=pivot_df.columns, y=pivot_df.index.strftime('%Y-%m'),
-            colorscale='RdBu_r', 
-            zmin=-abs_max, zmax=abs_max, # 强制 2D 图的 0 对齐纯白
-            hoverongaps=False, 
-            colorbar=dict(title="缺口指数")
+            colorscale='RdBu_r', zmin=-abs_max, zmax=abs_max, 
+            hoverongaps=False, hovertemplate=hover_template,
+            colorbar=dict(title="缺口指数 (GWh)")
         ))
         fig_2d.update_layout(template="plotly_white", paper_bgcolor="rgba(0,0,0,0)", font=dict(color="#0F172A"),
-            xaxis_title="空间维度：省级行政区", yaxis_title="时间维度：月度演进",
+            xaxis_title="空间维度：省级行政区", yaxis_title="时间维度：月度演进 (YYYY-MM)",
             height=700, margin=dict(l=0, r=0, b=0, t=20))
         st.plotly_chart(fig_2d, use_container_width=True)
 
@@ -258,14 +250,14 @@ elif page == "4. 智能体调度决策引擎":
     - 发生时间节点：{worst_date}
     - 供需缺口极值：高达 {worst_shortage:.2f} GWh（存在拉闸限电风险）
 
-    请牢记上述异常数据。回答请结合严谨的电网运行规范和真实的电力调度（如现货市场、DR、VPP）知识，总字数控制在1000字以内。"""
+    请牢记上述异常数据。回答请结合严谨的电网运行规范和真实的电力调度（如现货市场、DR、VPP）知识，数值单位必须统一使用 GWh，总字数控制在1000字以内。"""
 
     if "chat_history" not in st.session_state:
         st.session_state.chat_history = []
 
     st.error(f"🚨 **实时风险扫描简报**：底层扫描引擎报告，**{worst_prov}** 在 **{worst_date}** 突破历史最大电力供需剪刀差，缺口峰值达 **{worst_shortage:.2f} GWh**！")
 
-    recommended_prompt = f"针对系统捕获的 {worst_prov} 在 {worst_date} 出现的 {worst_shortage:.2f} GWh 严重电力缺口。作为智算中枢，请立刻生成一份包含宅少3条核心对策的紧急保供调度指令单。"
+    recommended_prompt = f"针对系统捕获的 {worst_prov} 在 {worst_date} 出现的 {worst_shortage:.2f} GWh 严重电力缺口。作为智算中枢，请立刻生成一份包含至少3条核心对策的紧急保供调度指令单。"
 
     if st.button("⚡ 自动执行异常分析指令"):
         st.session_state.chat_history.append({"role": "user", "content": recommended_prompt})
@@ -281,7 +273,7 @@ elif page == "4. 智能体调度决策引擎":
     st.markdown("---")
 
     with st.form(key="chat_form", clear_on_submit=True):
-        user_input = st.text_input("向调度中枢下达其他分析指令...")
+        user_input = st.text_input("向调度中枢下达其他分析指令 (支持多轮追问)...")
         submit_btn = st.form_submit_button("执行指令 🚀")
 
     trigger_api = False
