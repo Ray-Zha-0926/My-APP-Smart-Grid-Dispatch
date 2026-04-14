@@ -49,7 +49,7 @@ with st.sidebar:
                     )
     st.markdown("---")
     st.success("核心数据库连接正常")
-    st.info("系统版本：V 3.2 (Industry Standard UI)\n\n底层数据：国家统计局\n\n智能体：Qwen-Turbo")
+    st.info("系统版本：V 3.2 \n\n底层数据：国家统计局\n\n智能体：Qwen-Turbo")
 
 # ================= 模拟加载数据 =================
 @st.cache_data
