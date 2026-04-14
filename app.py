@@ -11,9 +11,9 @@ st.set_page_config(page_title="新型电力系统智能调度决策平台", layo
 # ================= 自定义 CSS: 极致清晰的现代亮色仪表盘风格 =================
 custom_css = """
 <style>
-    #MainMenu {visibility: hidden;}
+    /* #MainMenu {visibility: hidden;} */
     footer {visibility: hidden;}
-    header {visibility: hidden;}
+    /* header {visibility: hidden;} */
     .stApp { background-color: #F8FAFC; }
     html, body, [class*="css"], p { color: #334155 !important; font-family: 'Inter', sans-serif; }
     [data-testid="stSidebar"] { background-color: #FFFFFF; border-right: 1px solid #E2E8F0; }
