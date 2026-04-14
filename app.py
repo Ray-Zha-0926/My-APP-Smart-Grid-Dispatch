@@ -44,12 +44,12 @@ with st.sidebar:
     st.markdown("<p style='text-align: center; color: #64748B; font-size: 13px; margin-top: -15px;'>Power System Smart Dispatch</p>", unsafe_allow_html=True)
     st.markdown("---")
     page = st.radio("模块导航",
-                    ["1. 源网荷实时态势感知", "2. 电力数据时序分解演进", "3. 省级供需缺口三维风险曲面",
+                    ["1. 源网荷实时态势感知", "2. 电力数据时序分解演进", "3. 省级供需缺口时空图",
                      "4. 智能体调度决策引擎"]
                     )
     st.markdown("---")
     st.success("核心数据库连接正常")
-    st.info("系统版本：V 3.3 (Interactive Upgrade)\n\n底层数据：国家统计局\n\n智能体：Qwen-Turbo")
+    st.info("系统版本：V 3.3 (Interactive Upgrade)\n\n底层数据：国家统计局、能源局等\n\n智能体：Qwen-Turbo")
 
 # ================= 加载 Excel 数据 =================
 @st.cache_data
@@ -177,7 +177,7 @@ elif page == "2. 电力数据时序分解演进":
     st.plotly_chart(fig_decomp, use_container_width=True)
 
 # ================= 页面 3：3D 时空图 =================
-elif page == "3. 省级供需缺口三维风险曲面":
+elif page == "3. 省级供需缺口时空图":
     st.markdown("<h1>🌐 省级供需缺口时空演化热力曲面</h1>", unsafe_allow_html=True)
     st.markdown("<p style='color:#64748B; font-size: 16px;'>【色彩语义标准】白色基准线为供需平衡点(缺口=0 GWh)。<b style='color:#10B981;'>绿色</b>区域表示电力冗余，<b style='color:#EF4444;'>红色</b>高地代表电网承压严重缺电。</p>", unsafe_allow_html=True)
     st.markdown("---")
@@ -251,7 +251,7 @@ elif page == "3. 省级供需缺口三维风险曲面":
             ), height=750, margin=dict(l=0, r=0, b=0, t=0))
         st.plotly_chart(fig, use_container_width=True)
     else:
-        st.info("💡 【2D 切片指引】色彩过渡已非线性强化，哪怕只有极其微弱的短缺也会立刻显红。悬停色块查看确切数值。")
+        st.info("💡 【2D 切片指引】悬停色块可以查看确切数值。")
         fig_2d = go.Figure(data=go.Heatmap(
             z=pivot_df.values, x=pivot_df.columns, y=pivot_df.index.strftime('%Y-%m'),
             colorscale=custom_colorscale, 
