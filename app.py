@@ -285,7 +285,7 @@ elif page == "4. AI 大模型调度决策生成":
         st.write("")
         if st.button("🔄 重置会话上下文", help="清空记忆，开启新的研判任务"):
             st.session_state.chat_history = []
-            st.experimental_rerun()
+            st.rerun()
 
     st.markdown(
         "<p style='color:#64748B; font-size: 16px;'>将底层监控数据静默注入大模型提示词工程 (Prompt Engineering)，实现数据驱动的智能诊断与策略生成。</p>",
@@ -373,7 +373,7 @@ elif page == "4. AI 大模型调度决策生成":
 
                     ai_response = completion.choices[0].message.content
                     st.session_state.chat_history.append({"role": "assistant", "content": ai_response})
-                    st.experimental_rerun()
+                    st.rerun()
 
                 except Exception as e:
                     st.error(f"指令执行失败，远端节点返回错误：{e}")
