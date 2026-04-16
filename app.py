@@ -49,7 +49,7 @@ with st.sidebar:
                     )
     st.markdown("---")
     st.success("核心数据库连接正常")
-    st.info("系统版本：V 3.3 (Interactive Upgrade)\n\n底层数据：国家统计局、能源局等\n\n智能体：Qwen3.5-Plus-2026-02-15")
+    st.info("系统版本：V 3.3 (Interactive Upgrade)\n\n底层数据：国家统计局、能源局等\n\n智能体：qwen3.6-plus")
 
 # ================= 加载 Excel 数据 =================
 @st.cache_data
@@ -268,7 +268,7 @@ elif page == "3. 省级供需缺口时空图":
 elif page == "4. 智能体调度决策引擎":
     col_title, col_btn = st.columns([4, 1])
     with col_title:
-        st.markdown("<h1>🤖 智能体: 大模型辅助决策 (Qwen3.5-Plus-2026-02-15)</h1>", unsafe_allow_html=True)
+        st.markdown("<h1>🤖 智能体: 大模型辅助决策 (qwen3.6-plus)</h1>", unsafe_allow_html=True)
     with col_btn:
         st.write("")
         if st.button("🔄 重置会话上下文"):
@@ -350,7 +350,7 @@ elif page == "4. 智能体调度决策引擎":
                 try:
                     client = OpenAI(api_key=api_key, base_url="https://dashscope.aliyuncs.com/compatible-mode/v1")
                     messages_for_api = [{"role": "system", "content": SYSTEM_PROMPT}] + st.session_state.chat_history
-                    completion = client.chat.completions.create(model="Qwen3.5-Plus-2026-02-15", messages=messages_for_api)
+                    completion = client.chat.completions.create(model="qwen3.6-plus", messages=messages_for_api)
                     ai_response = completion.choices[0].message.content
                     st.session_state.chat_history.append({"role": "assistant", "content": ai_response})
                     st.rerun()
