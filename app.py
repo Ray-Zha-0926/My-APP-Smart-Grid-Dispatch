@@ -40,8 +40,8 @@ st.markdown(custom_css, unsafe_allow_html=True)
 
 # ================= 侧边栏导航 =================
 with st.sidebar:
-    st.markdown("<h2 style='text-align: center; color: #2563EB; font-weight: 900;'>⚡ 宏观电脉：智能调度中枢</h2>", unsafe_allow_html=True)
-    st.markdown("<p style='text-align: center; color: #64748B; font-size: 13px; margin-top: -15px;'>Power System Smart Dispatch</p>", unsafe_allow_html=True)
+    st.markdown("<h2 style='text-align: center; color: #2563EB; font-weight: 900;'>⚡ 宏观电脉：智能电力中枢</h2>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align: center; color: #64748B; font-size: 13px; margin-top: -15px;'>Power System Smart Center</p>", unsafe_allow_html=True)
     st.markdown("---")
     page = st.radio("模块导航",
                     ["1. 宏观电力省级历史数据", "2. 电力数据时序分解演进", "3. 省级供需缺口时空图",
