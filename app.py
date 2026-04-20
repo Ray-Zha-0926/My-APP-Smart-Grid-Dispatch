@@ -40,11 +40,11 @@ st.markdown(custom_css, unsafe_allow_html=True)
 
 # ================= 侧边栏导航 =================
 with st.sidebar:
-    st.markdown("<h2 style='text-align: center; color: #2563EB; font-weight: 900;'>⚡ 智能调度中枢</h2>", unsafe_allow_html=True)
+    st.markdown("<h2 style='text-align: center; color: #2563EB; font-weight: 900;'>⚡ 宏观电脉：智能调度中枢</h2>", unsafe_allow_html=True)
     st.markdown("<p style='text-align: center; color: #64748B; font-size: 13px; margin-top: -15px;'>Power System Smart Dispatch</p>", unsafe_allow_html=True)
     st.markdown("---")
     page = st.radio("模块导航",
-                    ["1. 源网荷实时态势感知", "2. 电力数据时序分解演进", "3. 省级供需缺口时空图",
+                    ["1. 宏观电力省级历史数据", "2. 电力数据时序分解演进", "3. 省级供需缺口时空图",
                      "4. 智能体调度决策引擎"]
                     )
     st.markdown("---")
@@ -63,10 +63,10 @@ def load_real_data():
 
 df = load_real_data()
 
-# ================= 页面 1：源网荷态势感知大屏 =================
-if page == "1. 源网荷实时态势感知":
-    st.markdown("<h1>📊 全国省级电网源荷态势感知</h1>", unsafe_allow_html=True)
-    st.markdown("<p style='color:#64748B; font-size: 16px;'>基于多源传感器及统计局宏观数据，实时监控各省级行政区全社会用电负荷与发电量极值。</p>", unsafe_allow_html=True)
+# ================= 页面 1：宏观电力复盘研判大屏 =================
+if page == "1. 宏观电力省级历史数据":
+    st.markdown("<h1>📊 全国省级电网电力数据</h1>", unsafe_allow_html=True)
+    st.markdown("<p style='color:#64748B; font-size: 16px;'>基于历史统计局宏观数据，复盘各省级行政区全社会用电负荷与发电量极值。</p>", unsafe_allow_html=True)
     st.markdown("---")
 
     col1, col2, col3, col4 = st.columns(4)
