@@ -213,21 +213,45 @@ elif page == "3. 省级供需缺口时空图":
     # 核心修正：绝对值对齐
     max_val = pivot_df.max().max()
     min_val = pivot_df.min().min()
-    # 防止全是 0 的情况报错
     if pd.isna(max_val): max_val = 1
     if pd.isna(min_val): min_val = -1
     abs_max = max(abs(max_val), abs(min_val))
 
-    # 🔥 核心升级：陡峭型非线性色彩映射，极限压缩白色过渡带
-    custom_colorscale = [
-        [0.0, '#059669'],   # 深绿 (极端冗余)
-        [0.35, '#34D399'],  # 正常绿
-        [0.48, '#ECFDF5'],  # 极浅绿 (非常贴近0)
-        [0.5, '#FFFFFF'],   # 绝对 0 点 (纯白)
-        [0.52, '#FEF2F2'],  # 极浅红 (一过0立刻变红)
-        [0.65, '#F87171'],  # 正常红
-        [1.0, '#DC2626']    # 深红 (极端短缺)
-    ]
+    # 🔥 核心升级：利用指数饱和函数动态生成高阶非线性色彩矩阵
+    def get_exponential_colorscale(lambda_factor=15):
+        """
+        基于 Y = 1 - exp(-lambda * X) 生成 100 阶平滑色彩矩阵
+        lambda_factor 决定 0 点附近的极端变色速率
+        """
+        colorscale = []
+        steps = 100
+        for i in range(steps + 1):
+            z = i / steps # 归一化坐标 [0, 1]
+            dist = abs(z - 0.5) * 2 # 计算距离 0 点的绝对偏差 [0, 1]
+            
+            # 引入指数饱和激活：一旦偏离 0，强度(intensity)瞬间飙升
+            intensity = 1 - np.exp(-lambda_factor * dist)
+            
+            if z == 0.5:
+                hex_color = '#FFFFFF' # 绝对平衡点：纯白
+            elif z > 0.5:
+                # 短缺区(红)：从纯白过渡到深红 #DC2626 (RGB: 220, 38, 38)
+                r = int(255 - (255 - 220) * intensity)
+                g = int(255 - (255 - 38) * intensity)
+                b = int(255 - (255 - 38) * intensity)
+                hex_color = f'#{r:02x}{g:02x}{b:02x}'
+            else:
+                # 冗余区(绿)：从纯白过渡到深绿 #059669 (RGB: 5, 150, 105)
+                r = int(255 - (255 - 5) * intensity)
+                g = int(255 - (255 - 150) * intensity)
+                b = int(255 - (255 - 105) * intensity)
+                hex_color = f'#{r:02x}{g:02x}{b:02x}'
+                
+            colorscale.append([z, hex_color])
+        return colorscale
+
+    # 调用生成函数，获取指数级平滑色彩矩阵
+    custom_colorscale = get_exponential_colorscale(lambda_factor=15)
 
     hover_text = []
     for date in pivot_df.index:
