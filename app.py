@@ -8,7 +8,8 @@ from plotly.subplots import make_subplots
 st.set_page_config(page_title="新型电力系统智能调度决策平台", layout="wide", page_icon="⚡",
                    initial_sidebar_state="expanded")
 
-# ================= 自定义 CSS: 极致清晰的现代亮色仪表盘风格 =================
+# ================= 自定义 CSS: 现代亮色仪表盘风格 =================
+# AI辅助生成：DeepSeek-V3, 2026-04-14
 custom_css = """
 <style>
     #MainMenu {visibility: hidden;}
@@ -39,6 +40,7 @@ custom_css = """
 st.markdown(custom_css, unsafe_allow_html=True)
 
 # ================= 侧边栏导航 =================
+# AI辅助生成：DeepSeek-V3, 2026-04-14
 with st.sidebar:
     st.markdown("<h2 style='text-align: center; color: #2563EB; font-weight: 900;'>⚡ 宏观电脉：智能电力中枢</h2>", unsafe_allow_html=True)
     st.markdown("<p style='text-align: center; color: #64748B; font-size: 13px; margin-top: -15px;'>Power System Smart Center</p>", unsafe_allow_html=True)
@@ -52,6 +54,7 @@ with st.sidebar:
     st.info("系统版本：V 3.3 (Interactive Upgrade)\n\n底层数据：国家统计局、能源局等\n\n智能体：qwen3.6-plus")
 
 # ================= 加载 Excel 数据 =================
+# AI辅助生成：DeepSeek-V3, 2026-04-14 (缓存装饰器模板)
 @st.cache_data
 def load_real_data():
     df = pd.read_excel('power_data.xlsx')
@@ -65,6 +68,7 @@ df = load_real_data()
 
 # ================= 页面 1：宏观电力复盘研判大屏 =================
 if page == "1. 宏观电力省级历史数据":
+  # AI辅助生成：DeepSeek-V3, 2026-04-14 (KPI卡片HTML布局)
     st.markdown("<h1>📊 全国省级电网电力数据</h1>", unsafe_allow_html=True)
     st.markdown("<p style='color:#64748B; font-size: 16px;'>基于历史统计局宏观数据，复盘各省级行政区全社会用电负荷与发电量极值。</p>", unsafe_allow_html=True)
     st.markdown("---")
@@ -104,6 +108,7 @@ if page == "1. 宏观电力省级历史数据":
 
 # ================= 页面 2：电力数据时序分解演进 =================
 elif page == "2. 电力数据时序分解演进":
+  # AI辅助生成：DeepSeek-V3, 2026-04-14 (页面标题、滑块、子图布局)
     st.markdown("<h1>📈 电力数据时序乘法分解演进 (Multiplicative Model)</h1>", unsafe_allow_html=True)
     st.markdown("<p style='color:#64748B; font-size: 16px;'>由于电力规模逐年扩大，系统的波动振幅呈喇叭口发散。我们采用高阶乘法模型 (Y = Trend × Seasonality × Noise) 进行精准降噪分解。</p>", unsafe_allow_html=True)
     st.markdown("---")
@@ -143,6 +148,7 @@ elif page == "2. 电力数据时序分解演进":
     plot_df_2 = prov_df_2[(prov_df_2['Date'].dt.date >= start_date_2) & (prov_df_2['Date'].dt.date <= end_date_2)]
 
     st.markdown("### 📊 发电量同比/环比及绝对量图")
+   # AI辅助生成：DeepSeek-V3, 2026-04-14 (双轴图表布局)
     fig2 = make_subplots(specs=[[{"secondary_y": True}]])
     fig2.add_trace(go.Bar(x=plot_df_2['Date'], y=plot_df_2['Generation'], name="月度发电总量 (GWh)", marker_color="#3B82F6", opacity=0.8), secondary_y=False)
     fig2.add_trace(go.Scatter(x=plot_df_2['Date'], y=plot_df_2['Gen_YoY'], name="同比增速 YoY (%)", mode="lines+markers", line=dict(color="#F59E0B", width=3), marker=dict(symbol="diamond", size=6)), secondary_y=True)
@@ -159,7 +165,8 @@ elif page == "2. 电力数据时序分解演进":
 
     st.markdown("### 🔬 时序乘法分解：趋势、季节、残差")
     st.markdown("<p style='color:#64748B; font-size: 14px;'>注：长周期趋势扩展为24个月平滑，完美过滤年际干扰；季节性振幅采用动态比率(Ratio)计算，客观反映供需压力的同步放大。</p>", unsafe_allow_html=True)
-    
+
+  # AI辅助生成：DeepSeek-V3, 2026-04-14 (四合一子图模板)
     fig_decomp = make_subplots(rows=4, cols=1, shared_xaxes=True, 
                                subplot_titles=("1. 原始动态增长信号 (GWh)", "2. 跨年度长周期宏观趋势 (GWh)", 
                                                "3. 振幅扩大型季节波动 (GWh)", "4. 突发随机噪声极值点 (GWh)"),
@@ -178,6 +185,7 @@ elif page == "2. 电力数据时序分解演进":
 
 # ================= 页面 3：3D 时空图 =================
 elif page == "3. 省级供需缺口时空图":
+  # AI辅助生成：DeepSeek-V3, 2026-04-14 (页面标题、色彩语义说明、交互控件)
     st.markdown("<h1>🌐 省级供需缺口时空演化热力曲面</h1>", unsafe_allow_html=True)
     st.markdown("<p style='color:#64748B; font-size: 16px;'>【色彩语义标准】白色基准线为供需平衡点(缺口=0 GWh)。<b style='color:#10B981;'>绿色</b>区域表示电力冗余，<b style='color:#EF4444;'>红色</b>高地代表电网承压严重缺电。</p>", unsafe_allow_html=True)
     st.markdown("---")
@@ -217,7 +225,7 @@ elif page == "3. 省级供需缺口时空图":
     if pd.isna(min_val): min_val = -1
     abs_max = max(abs(max_val), abs(min_val))
 
-    # 🔥 核心升级：利用指数饱和函数动态生成高阶非线性色彩矩阵
+    # 利用指数饱和函数动态生成高阶非线性色彩矩阵
     def get_exponential_colorscale(lambda_factor=15):
         """
         基于 Y = 1 - exp(-lambda * X) 生成 100 阶平滑色彩矩阵
@@ -290,6 +298,7 @@ elif page == "3. 省级供需缺口时空图":
 
 # ================= 页面 4：AI 模块 =================
 elif page == "4. 智能体调度决策引擎":
+  # AI辅助生成：DeepSeek-V3, 2026-04-14 (对话界面布局、API调用框架)
     col_title, col_btn = st.columns([4, 1])
     with col_title:
         st.markdown("<h1>🤖 智能体: 大模型辅助决策 (qwen3.6-plus)</h1>", unsafe_allow_html=True)
@@ -369,6 +378,7 @@ elif page == "4. 智能体调度决策引擎":
             st.warning("⚠️ 权限验证提醒：请先在左侧控制面板输入您的 API Token！")
             st.session_state.chat_history.pop()
         else:
+          # AI辅助生成：DeepSeek-V3, 2026-04-14 (OpenAI兼容调用及错误处理)
             from openai import OpenAI
             with st.spinner("🧠 智能体正在融合全局感知数据进行推演，请稍候..."):
                 try:
